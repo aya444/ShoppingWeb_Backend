@@ -20,7 +20,7 @@ public class ProductREST {
 
     @POST
     @Path("/{id}/add")
-    public String createTrip(@PathParam(value = "id") Long id, Product newProduct) {
+    public String createProduct(@PathParam(value = "id") Long id, Product newProduct) {
         // map the fields from DTO to entity
         Product product = new Product();
         product.setName(newProduct.getName());

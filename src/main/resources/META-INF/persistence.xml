@@ -9,7 +9,8 @@
         <class>entities.Sellingcompany</class>
         <class>entities.Product</class>
         <class>entities.Shippingcompany</class>
-        <class>entities.Order</class>
+        <class>entities.Customer</class>
+        <class>entities.Orders</class>
         <properties>
             <property name="hibernate.connection.url" value="jdbc:mysql://localhost:3306/shopping_db"/>
             <property name="hibernate.connection.driver_class" value="com.mysql.cj.jdbc.Driver"/>
