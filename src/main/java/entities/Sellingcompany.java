@@ -2,18 +2,34 @@ package entities;
 
 import jakarta.persistence.*;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
 @Entity
-public class Sellingcompany {
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+public class Sellingcompany implements Serializable {
     @Id
-    @Column(name = "id")
+    @Column(name = "id", nullable = false)
     private int id;
     @Basic
-    @Column(name = "username")
+    @Column(name = "username", nullable = true, length = 1000)
     private String username;
     @Basic
-    @Column(name = "password")
+    @Column(name = "password", nullable = true, length = 1000)
     private String password;
+
+    @OneToMany(mappedBy = "sellingcompany",cascade = CascadeType.ALL)
+    private Set<Product> products;
+
+    public Set<Product> getProducts() {
+        return products;
+    }
+
+    public void setProducts(Set<Product> products) {
+        this.products = products;
+    }
 
     public int getId() {
         return id;

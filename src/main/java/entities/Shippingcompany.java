@@ -2,18 +2,16 @@ package entities;
 
 import jakarta.persistence.*;
 
-import java.io.Serializable;
-
 @Entity
-public class Admin implements Serializable {
+public class Shippingcompany {
     @Id
     @Column(name = "id", nullable = false)
     private int id;
     @Basic
-    @Column(name = "username", nullable = true, length = 1000)
+    @Column(name = "username", nullable = false, length = 45)
     private String username;
     @Basic
-    @Column(name = "password", nullable = true, length = 1000)
+    @Column(name = "password", nullable = false, length = 45)
     private String password;
 
     public int getId() {
@@ -45,11 +43,11 @@ public class Admin implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Admin admin = (Admin) o;
+        Shippingcompany that = (Shippingcompany) o;
 
-        if (id != admin.id) return false;
-        if (username != null ? !username.equals(admin.username) : admin.username != null) return false;
-        if (password != null ? !password.equals(admin.password) : admin.password != null) return false;
+        if (id != that.id) return false;
+        if (username != null ? !username.equals(that.username) : that.username != null) return false;
+        if (password != null ? !password.equals(that.password) : that.password != null) return false;
 
         return true;
     }
