@@ -2,32 +2,23 @@ package entities;
 
 import jakarta.persistence.*;
 
-import java.util.List;
-import java.util.Set;
-
 @Entity
 public class Orders {
-
     @Id
-    @Column(name = "id", nullable = false)
+    @Column(name = "id")
     private int id;
-//    @OneToMany(mappedBy = "orders",cascade = CascadeType.ALL)
-//    private Set<Product> products;
     @Basic
-    @Column(name = "state", nullable = false, length = 45)
-    private String state;
+    @Column(name = "product_names")
+    private String productNames;
     @Basic
-    @Column(name = "customer_id", nullable = false)
+    @Column(name = "status")
+    private String status;
+    @Basic
+    @Column(name = "customer_id")
     private int customerId;
     @Basic
-    @Column(name = "product_names", nullable = false)
-    private String productNames;
-
-    public Orders() {
-        super();
-    }
-
-
+    @Column(name = "customer_name")
+    private String customerName;
 
     public int getId() {
         return id;
@@ -37,12 +28,20 @@ public class Orders {
         this.id = id;
     }
 
-    public String getState() {
-        return state;
+    public String getProductNames() {
+        return productNames;
     }
 
-    public void setState(String state) {
-        this.state = state;
+    public void setProductNames(String productNames) {
+        this.productNames = productNames;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public int getCustomerId() {
@@ -51,6 +50,14 @@ public class Orders {
 
     public void setCustomerId(int customerId) {
         this.customerId = customerId;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
     }
 
     @Override
@@ -62,7 +69,11 @@ public class Orders {
 
         if (id != orders.id) return false;
         if (customerId != orders.customerId) return false;
-        if (state != null ? !state.equals(orders.state) : orders.state != null) return false;
+        if (productNames != null ? !productNames.equals(orders.productNames) : orders.productNames != null)
+            return false;
+        if (status != null ? !status.equals(orders.status) : orders.status != null) return false;
+        if (customerName != null ? !customerName.equals(orders.customerName) : orders.customerName != null)
+            return false;
 
         return true;
     }
@@ -70,16 +81,10 @@ public class Orders {
     @Override
     public int hashCode() {
         int result = id;
-        result = 31 * result + (state != null ? state.hashCode() : 0);
+        result = 31 * result + (productNames != null ? productNames.hashCode() : 0);
+        result = 31 * result + (status != null ? status.hashCode() : 0);
         result = 31 * result + customerId;
+        result = 31 * result + (customerName != null ? customerName.hashCode() : 0);
         return result;
-    }
-
-    public String getProductNames() {
-        return productNames;
-    }
-
-    public void setProductNames(String productNames) {
-        this.productNames = productNames;
     }
 }

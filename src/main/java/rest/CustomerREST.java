@@ -3,16 +3,16 @@ package rest;
 import entities.Customer;
 import entities.Orders;
 import entities.Product;
-import entities.Sellingcompany;
 import jakarta.persistence.*;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import javax.ejb.Stateful;
 import javax.ejb.Stateless;
 import java.util.List;
 
-@Stateless
+@Stateful
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 @Path("customer")
@@ -48,6 +48,7 @@ public class CustomerREST {
                     .getSingleResult();
 
             if (cust.getCustPassword().equals(password)) {
+                foundCust.setCustState("online");
                 em.getTransaction().commit();
                 return Response.ok("Login successful").build();
             } else {
@@ -63,24 +64,39 @@ public class CustomerREST {
     //Make a new purchase
 
     @POST
-    @Path("/newOrder")
-    public String newPurchase(Orders order) {
-        em.getTransaction().begin();
+    @Path("/newOrder/{custName}")
+    public String newPurchase(@PathParam("custName") String custName, Orders order) {
         Orders newOrder= new Orders();
+        em.getTransaction().begin();
+        //Orders newOrder= new Orders();
         String name = order.getProductNames();
+        //String customerN= order.getCustomerName();
         TypedQuery<Product> query= em.createQuery("SELECT p FROM Product p", Product.class);
         List<Product> products = query.getResultList();
 
-        for(int i=0; i<products.size();i++){
-            if(name.equals(products.get(i).getName())){
-                newOrder.setProductNames(name);
-                newOrder.setState("current");
-                em.persist(newOrder);
-                em.getTransaction().commit();
-                return "order completed!";
+        //check if user is logged in
+        Customer foundCust= em.createQuery("SELECT c FROM Customer c WHERE c.custName=:custName", Customer.class)
+                .setParameter("custName" ,custName)
+                .getSingleResult();
+
+              if(foundCust.getCustState().equals("online") )
+            {
+
+                for(int i=0; i<products.size();i++){
+                    if(products.get(i).getName().equals(name)){
+                        newOrder.setProductNames(name);
+                        newOrder.setCustomerName(custName);
+                        newOrder.setStatus("current");
+                        em.persist(newOrder);
+                        em.getTransaction().commit();
+                        return "order completed!";
+                    }
             }
-        }
-        return "Product not found!";
+                return "this product:("+name+") is not available";
+        }  return "please login first";
+
+
+
     }
 }
 
