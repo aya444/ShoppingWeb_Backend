@@ -1,5 +1,6 @@
 package rest;
 
+import entities.Admin;
 import entities.Customer;
 import entities.Orders;
 import entities.Product;
@@ -21,7 +22,7 @@ public class CustomerREST {
     EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("default");
     EntityManager em = entityManagerFactory.createEntityManager();
 
-    //Register as a new customer
+    //1- Register as a new customer
     @POST
     @Path("/signup")
     public String register(Customer cust) {
@@ -31,7 +32,7 @@ public class CustomerREST {
         return "successfully added customer!";
     }
 
-    //login customer
+    //2- login customer
     @POST
     @Path("/login")
     public Response login(Customer cust) {
@@ -61,8 +62,33 @@ public class CustomerREST {
         }
     }
 
-    //Make a new purchase
+    //3- View current and past purchase orders
 
+    @GET
+    @Path("/view/{status}")
+    public List<Orders> viewOrders(@PathParam("status") String status) {
+
+        if (status.equals("current")) {
+
+        em.getTransaction().begin();
+        TypedQuery<Orders> query = em.createQuery("SELECT o FROM Orders o WHERE o.status= 'current' ", Orders.class);
+        List<Orders> orders = query.getResultList();
+        em.getTransaction().commit();
+        return orders;
+
+    } else if (status.equals("past")){
+            em.getTransaction().begin();
+            TypedQuery<Orders> query = em.createQuery("SELECT o FROM Orders o WHERE o.status= 'past'", Orders.class);
+            List<Orders> orders = query.getResultList();
+            em.getTransaction().commit();
+            return orders;
+        }
+
+        return null;
+    }
+
+
+    //4- Make a new purchase
     @POST
     @Path("/newOrder/{custName}")
     public String newPurchase(@PathParam("custName") String custName, Orders order) {
