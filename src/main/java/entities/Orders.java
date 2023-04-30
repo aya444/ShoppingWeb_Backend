@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 
 @Entity
 public class Orders {
+
+
     @Id
     @Column(name = "id")
     private int id;
@@ -19,6 +21,9 @@ public class Orders {
     @Basic
     @Column(name = "customer_name")
     private String customerName;
+    @Basic
+    @Column(name = "shipping_company")
+    private String shippingCompany;
 
     public int getId() {
         return id;
@@ -86,5 +91,13 @@ public class Orders {
         result = 31 * result + customerId;
         result = 31 * result + (customerName != null ? customerName.hashCode() : 0);
         return result;
+    }
+
+    public String getShippingCompany() {
+        return shippingCompany;
+    }
+
+    public void setShippingCompany(String shippingCompany) {
+        this.shippingCompany = shippingCompany;
     }
 }

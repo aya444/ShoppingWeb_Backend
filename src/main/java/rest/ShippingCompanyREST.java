@@ -1,6 +1,6 @@
 package rest;
 
-import entities.Shippingcompany;
+import entities.*;
 import jakarta.persistence.*;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
@@ -50,6 +50,36 @@ public class ShippingCompanyREST {
         } finally {
             em.close();
         }
+    }
+
+    //add regions it supports
+    @POST
+    @Path("/add_region/{id}")
+    public String addRegion(@PathParam("id")Integer companyId, Regions region){
+        Regions newRegion= new Regions();
+        newRegion.setCompanyId(companyId);
+        newRegion.setRegionName(region.getRegionName());
+        em.getTransaction().begin();
+        em.persist(newRegion);
+        em.getTransaction().commit();
+        return "Region Successfully added to your supported regions";
+
+    }
+
+    //process current requests
+    @GET
+    @Path("/process_requests/{companyName}")
+    public String process (@PathParam("companyName")String companyName) {
+        TypedQuery<Orders> query= em.createQuery("SELECT o FROM Orders o", Orders.class);
+        List<Orders> allOrders = query.getResultList();
+
+        for(int i=0; i< allOrders.size(); i++){
+            if(allOrders.get(i).getStatus().equals("current") && allOrders.get(i).getShippingCompany().equals(companyName))
+            {
+                return "order of customer "+allOrders.get(i).getCustomerName()+" is processed";
+            }
+        }
+        return null;
     }
 
     @GET
