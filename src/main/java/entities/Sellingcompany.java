@@ -9,19 +9,22 @@ import java.util.List;
 import java.util.Set;
 
 @Entity
-public class Sellingcompany implements Serializable {
+public class Sellingcompany{
     @Id
     @Column(name = "id", nullable = false)
     private int id;
     @Basic
-    @Column(name = "username", nullable = true, length = 1000)
+    @Column(name = "username", nullable = false, length = 1000)
     private String username;
     @Basic
-    @Column(name = "password", nullable = true, length = 1000)
+    @Column(name = "password", nullable = false, length = 1000)
     private String password;
 
     @OneToMany(mappedBy = "sellingcompany",cascade = CascadeType.ALL)
     private Set<Product> products;
+    @Basic
+    @Column(name = "state", nullable = false, length = 45)
+    private String state;
 
     public Set<Product> getProducts() {
         return products;
@@ -30,6 +33,11 @@ public class Sellingcompany implements Serializable {
     public void setProducts(Set<Product> products) {
         this.products = products;
     }
+
+//    public void addProductToSellingCompany (Product product)
+//    {
+//        this.products.add(product);
+//    }
 
     public int getId() {
         return id;
@@ -75,5 +83,13 @@ public class Sellingcompany implements Serializable {
         result = 31 * result + (username != null ? username.hashCode() : 0);
         result = 31 * result + (password != null ? password.hashCode() : 0);
         return result;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
     }
 }

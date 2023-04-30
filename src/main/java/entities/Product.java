@@ -10,15 +10,14 @@ public class Product implements Serializable {
     @Column(name = "id", nullable = false)
     private int id;
     @Basic
-    @Column(name = "name", nullable = true, length = 45)
+    @Column(name = "name", nullable = false, length = 45)
     private String name;
     @Basic
-    @Column(name = "price", nullable = true)
+    @Column(name = "price", nullable = false)
     private Integer price;
     @Basic
-    @Column(name = "status", nullable = true, length = 45)
+    @Column(name = "status", nullable = false, length = 45)
     private String status;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sellingcompany_id")
     private Sellingcompany sellingcompany;
@@ -51,6 +50,10 @@ public class Product implements Serializable {
         return price;
     }
 
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
     public void setPrice(Integer price) {
         this.price = price;
     }
@@ -77,6 +80,7 @@ public class Product implements Serializable {
 
         return true;
     }
+
     @Override
     public int hashCode() {
         int result = id;

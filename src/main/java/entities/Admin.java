@@ -40,6 +40,19 @@ public class Admin implements Serializable {
         this.password = password;
     }
 
+    public String generateRandomPassword() {
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+";
+        int length = 10;
+
+        StringBuilder password = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            int index = (int) (Math.random() * characters.length());
+            password.append(characters.charAt(index));
+        }
+
+        return password.toString();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

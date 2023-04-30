@@ -2,6 +2,9 @@ package entities;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+import java.util.Set;
+
 @Entity
 public class Shippingcompany {
     @Id
@@ -13,6 +16,14 @@ public class Shippingcompany {
     @Basic
     @Column(name = "password", nullable = false, length = 45)
     private String password;
+
+    public Shippingcompany() {
+    }
+
+    public Shippingcompany(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
 
     public int getId() {
         return id;
