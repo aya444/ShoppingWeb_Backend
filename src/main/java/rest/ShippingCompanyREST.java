@@ -56,27 +56,31 @@ public class ShippingCompanyREST {
     @POST
     @Path("/add_region/{id}")
     public String addRegion(@PathParam("id")Integer companyId, Regions region){
+        Shippingcompany shippingingCompany = em.find(Shippingcompany.class, companyId);
         Regions newRegion= new Regions();
         newRegion.setCompanyId(companyId);
         newRegion.setRegionName(region.getRegionName());
+        newRegion.setShippingcompany(shippingingCompany);
         em.getTransaction().begin();
         em.persist(newRegion);
         em.getTransaction().commit();
         return "Region Successfully added to your supported regions";
-
     }
 
     //process current requests
     @GET
-    @Path("/process_requests/{companyName}")
-    public String process (@PathParam("companyName")String companyName) {
+    @Path("/process_requests/{shipping_id}")
+    public String process (@PathParam("shipping_id")int shipping_id) {
         TypedQuery<Orders> query= em.createQuery("SELECT o FROM Orders o", Orders.class);
         List<Orders> allOrders = query.getResultList();
 
         for(int i=0; i< allOrders.size(); i++){
-            if(allOrders.get(i).getStatus().equals("current") && allOrders.get(i).getShippingCompany().equals(companyName))
+            Shippingcompany shippingcompany = em.find(Shippingcompany.class,shipping_id);
+            if(allOrders.get(i).getStatus().equals("current") && (shippingcompany != null))
             {
-                return "order of customer "+allOrders.get(i).getCustomerName()+" is processed";
+                allOrders.get(i).setShippingId(shipping_id);
+                allOrders.get(i).setShippingcompany(shippingcompany);
+                return "order of customer "+allOrders.get(i).getCustomerId()+" is processed";
             }
         }
         return null;

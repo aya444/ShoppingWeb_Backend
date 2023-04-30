@@ -17,12 +17,18 @@ public class Shippingcompany {
     @Column(name = "password", nullable = false, length = 45)
     private String password;
 
-    public Shippingcompany() {
+    @OneToMany(mappedBy = "shippingcompany",cascade = CascadeType.ALL)
+    private Set<Regions> regions;
+
+    @OneToMany(mappedBy = "shippingcompany",cascade = CascadeType.ALL)
+    private Set<Orders> orders;
+
+    public Set<Regions> getRegions() {
+        return regions;
     }
 
-    public Shippingcompany(String username, String password) {
-        this.username = username;
-        this.password = password;
+    public void setRegions(Set<Regions> regions) {
+        this.regions = regions;
     }
 
     public int getId() {
@@ -47,6 +53,14 @@ public class Shippingcompany {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Set<Orders> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(Set<Orders> orders) {
+        this.orders = orders;
     }
 
     @Override

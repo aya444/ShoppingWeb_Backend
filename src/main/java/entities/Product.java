@@ -6,7 +6,6 @@ import java.io.Serializable;
 
 @Entity
 public class Product implements Serializable {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @Column(name = "id", nullable = false)
     private int id;
@@ -19,17 +18,12 @@ public class Product implements Serializable {
     @Basic
     @Column(name = "status", nullable = false, length = 45)
     private String status;
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "sellingcompany_id")
-    @JoinColumn(name = "sellingcompany_id", referencedColumnName = "id", nullable = false, insertable = false, updatable = false)
-    @ManyToOne(optional = false)
-    private Sellingcompany sellingcompany;
-
-
-//    private Sellingcompany sellingcompany;
     @Basic
     @Column(name = "sellingcompany_id", nullable = false)
     private int sellingcompanyId;
+    @JoinColumn(name = "sellingcompany_id", referencedColumnName = "id", nullable = false, insertable = false, updatable = false)
+    @ManyToOne(optional = false)
+    private Sellingcompany sellingcompany;
 
     public int getId() {
         return id;

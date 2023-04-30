@@ -4,26 +4,32 @@ import jakarta.persistence.*;
 
 @Entity
 public class Orders {
-
-
     @Id
-    @Column(name = "id")
+    @Column(name = "id", nullable = false)
     private int id;
     @Basic
-    @Column(name = "product_names")
+    @Column(name = "product_names", nullable = false, length = 255)
     private String productNames;
     @Basic
-    @Column(name = "status")
+    @Column(name = "status", nullable = false, length = 45)
     private String status;
     @Basic
-    @Column(name = "customer_id")
+    @Column(name = "customer_id", nullable = false)
     private int customerId;
     @Basic
-    @Column(name = "customer_name")
-    private String customerName;
+    @Column(name = "shipping_id", nullable = true)
+    private Integer shippingId;
+
+    @JoinColumn(name = "shipping_id", referencedColumnName = "id", nullable = false, insertable = false, updatable = false)
+    @ManyToOne(optional = false)
+    private Shippingcompany shippingcompany;
+
+    @JoinColumn(name = "customer_id", referencedColumnName = "custId", nullable = false, insertable = false, updatable = false)
+    @ManyToOne(optional = false)
+    private Customer customer;
     @Basic
-    @Column(name = "shipping_company")
-    private String shippingCompany;
+    @Column(name = "product_id", nullable = false)
+    private int productId;
 
     public int getId() {
         return id;
@@ -56,13 +62,29 @@ public class Orders {
     public void setCustomerId(int customerId) {
         this.customerId = customerId;
     }
-
-    public String getCustomerName() {
-        return customerName;
+    
+    public Customer getCustomer() {
+        return customer;
     }
 
-    public void setCustomerName(String customerName) {
-        this.customerName = customerName;
+    public void setCustomer(Customer customer) {
+        this.customer = customer;
+    }
+
+    public Integer getShippingId() {
+        return shippingId;
+    }
+
+    public void setShippingId(Integer shippingId) {
+        this.shippingId = shippingId;
+    }
+
+    public Shippingcompany getShippingcompany() {
+        return shippingcompany;
+    }
+
+    public void setShippingcompany(Shippingcompany shippingcompany) {
+        this.shippingcompany = shippingcompany;
     }
 
     @Override
@@ -77,8 +99,6 @@ public class Orders {
         if (productNames != null ? !productNames.equals(orders.productNames) : orders.productNames != null)
             return false;
         if (status != null ? !status.equals(orders.status) : orders.status != null) return false;
-        if (customerName != null ? !customerName.equals(orders.customerName) : orders.customerName != null)
-            return false;
 
         return true;
     }
@@ -89,15 +109,14 @@ public class Orders {
         result = 31 * result + (productNames != null ? productNames.hashCode() : 0);
         result = 31 * result + (status != null ? status.hashCode() : 0);
         result = 31 * result + customerId;
-        result = 31 * result + (customerName != null ? customerName.hashCode() : 0);
         return result;
     }
 
-    public String getShippingCompany() {
-        return shippingCompany;
+    public int getProductId() {
+        return productId;
     }
 
-    public void setShippingCompany(String shippingCompany) {
-        this.shippingCompany = shippingCompany;
+    public void setProductId(int productId) {
+        this.productId = productId;
     }
 }

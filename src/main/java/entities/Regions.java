@@ -4,16 +4,19 @@ import jakarta.persistence.*;
 
 @Entity
 public class Regions {
-
     @Id
-    @Column(name = "region_id")
+    @Column(name = "region_id", nullable = false)
     private int regionId;
     @Basic
-    @Column(name = "region_name")
+    @Column(name = "region_name", nullable = true, length = 45)
     private String regionName;
     @Basic
-    @Column(name = "company_id")
+    @Column(name = "company_id", nullable = true)
     private Integer companyId;
+    @JoinColumn(name = "company_id", referencedColumnName = "id", nullable = false, insertable = false, updatable = false)
+    @ManyToOne(optional = false)
+    private Shippingcompany shippingcompany;
+
 
     public int getRegionId() {
         return regionId;
@@ -37,6 +40,14 @@ public class Regions {
 
     public void setCompanyId(Integer companyId) {
         this.companyId = companyId;
+    }
+
+    public Shippingcompany getShippingcompany() {
+        return shippingcompany;
+    }
+
+    public void setShippingcompany(Shippingcompany shippingcompany) {
+        this.shippingcompany = shippingcompany;
     }
 
     @Override

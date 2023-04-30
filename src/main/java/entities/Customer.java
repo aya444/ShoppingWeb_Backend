@@ -7,9 +7,6 @@ import java.util.Set;
 @Entity
 public class Customer {
 
-//    @OneToMany(mappedBy = "customer",cascade = CascadeType.ALL)
-//    private Set<Orders> orders;
-
     @Id
     @Column(name = "custId", nullable = false)
     private int custId;
@@ -22,13 +19,11 @@ public class Customer {
     @Basic
     @Column(name = "custPassword", nullable = false, length = 45)
     private String custPassword;
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Id
-    @Column(name = "custid")
-    private int custid;
     @Basic
     @Column(name = "custState")
     private String custState;
+    @OneToMany(mappedBy = "customer",cascade = CascadeType.ALL)
+    private Set<Orders> orders;
 
     public int getCustId() {
         return custId;
@@ -62,6 +57,22 @@ public class Customer {
         this.custPassword = custPassword;
     }
 
+    public String getCustState() {
+        return custState;
+    }
+
+    public void setCustState(String custState) {
+        this.custState = custState;
+    }
+
+    public Set<Orders> getOrders() {
+        return orders;
+    }
+
+    public void setOrders(Set<Orders> orders) {
+        this.orders = orders;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -85,21 +96,5 @@ public class Customer {
         result = 31 * result + (custEmail != null ? custEmail.hashCode() : 0);
         result = 31 * result + (custPassword != null ? custPassword.hashCode() : 0);
         return result;
-    }
-
-    public int getCustid() {
-        return custid;
-    }
-
-    public void setCustid(int custid) {
-        this.custid = custid;
-    }
-
-    public String getCustState() {
-        return custState;
-    }
-
-    public void setCustState(String custState) {
-        this.custState = custState;
     }
 }

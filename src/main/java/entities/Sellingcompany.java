@@ -19,12 +19,11 @@ public class Sellingcompany{
     @Basic
     @Column(name = "password", nullable = false, length = 1000)
     private String password;
-
-    @OneToMany(mappedBy = "sellingcompany",cascade = CascadeType.ALL)
-    private Set<Product> products;
     @Basic
     @Column(name = "state", nullable = false, length = 45)
     private String state;
+    @OneToMany(mappedBy = "sellingcompany",cascade = CascadeType.ALL)
+    private Set<Product> products;
 
     public Set<Product> getProducts() {
         return products;
@@ -33,12 +32,6 @@ public class Sellingcompany{
     public void setProducts(Set<Product> products) {
         this.products = products;
     }
-
-//    public void addProductToSellingCompany (Product product)
-//    {
-//        this.products.add(product);
-//    }
-
     public int getId() {
         return id;
     }
@@ -63,6 +56,14 @@ public class Sellingcompany{
         this.password = password;
     }
 
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -83,13 +84,5 @@ public class Sellingcompany{
         result = 31 * result + (username != null ? username.hashCode() : 0);
         result = 31 * result + (password != null ? password.hashCode() : 0);
         return result;
-    }
-
-    public String getState() {
-        return state;
-    }
-
-    public void setState(String state) {
-        this.state = state;
     }
 }

@@ -88,42 +88,77 @@ public class CustomerREST {
     }
 
 
+
+
     //4- Make a new purchase
+
     @POST
-    @Path("/newOrder/{custName}")
-    public String newPurchase(@PathParam("custName") String custName, Orders order) {
+    @Path("/newOrder/{id}")
+    public String newPurchase(@PathParam("id") int id, Orders order) {
         Orders newOrder= new Orders();
         em.getTransaction().begin();
-        //Orders newOrder= new Orders();
         String name = order.getProductNames();
-        //String customerN= order.getCustomerName();
+        int product_id = order.getProductId();
         TypedQuery<Product> query= em.createQuery("SELECT p FROM Product p", Product.class);
         List<Product> products = query.getResultList();
-
         //check if user is logged in
-        Customer foundCust= em.createQuery("SELECT c FROM Customer c WHERE c.custName=:custName", Customer.class)
-                .setParameter("custName" ,custName)
-                .getSingleResult();
-
-              if(foundCust.getCustState().equals("online") )
-            {
-
-                for(int i=0; i<products.size();i++){
-                    if(products.get(i).getName().equals(name)){
-                        newOrder.setProductNames(name);
-                        newOrder.setCustomerName(custName);
-                        newOrder.setStatus("current");
-                        em.persist(newOrder);
-                        em.getTransaction().commit();
-                        return "order completed!";
-                    }
+        Customer customer = em.find(Customer.class,id);
+        if(customer.getCustState().equals("online")){
+            for(int i=0; i<products.size();i++){
+                if(products.get(i).getName().equals(name)){
+                    newOrder.setProductId(id);
+                    newOrder.setProductNames(name);
+                    newOrder.setCustomerId(id);
+                    newOrder.setCustomer(customer);
+                    newOrder.setStatus("current");
+                    em.persist(newOrder);
+                    em.getTransaction().commit();
+                    return "order completed!";
+                }
             }
-                return "this product:("+name+") is not available";
-        }  return "please login first";
+            return "this product:("+name+") is not available";
+        }
+        return "please login first";
 
 
 
     }
+
+//    @POST
+//    @Path("/newOrder/{custName}")
+//    public String newPurchase(@PathParam("custName") String custName, Orders order) {
+//        Orders newOrder= new Orders();
+//        em.getTransaction().begin();
+//        //Orders newOrder= new Orders();
+//        String name = order.getProductNames();
+//        //String customerN= order.getCustomerName();
+//        TypedQuery<Product> query= em.createQuery("SELECT p FROM Product p", Product.class);
+//        List<Product> products = query.getResultList();
+//
+//        //check if user is logged in
+//        Customer foundCust= em.createQuery("SELECT c FROM Customer c WHERE c.custName=:custName", Customer.class)
+//                .setParameter("custName" ,custName)
+//                .getSingleResult();
+//
+//              if(foundCust.getCustState().equals("online") )
+//            {
+//
+//                for(int i=0; i<products.size();i++){
+//                    if(products.get(i).getName().equals(name)){
+//                        newOrder.setProductNames(name);
+//                        newOrder.setCustomerName(custName);
+//                        newOrder.setStatus("current");
+//                        em.persist(newOrder);
+//                        em.getTransaction().commit();
+//                        return "order completed!";
+//                    }
+//            }
+//                return "this product:("+name+") is not available";
+//        }  return "please login first";
+//
+//
+//
+//    }
 }
 
 

@@ -49,12 +49,21 @@ public class AdminREST {
         List<Customer> customers = query.getResultList();
         List<Map<String, Object>> result = new ArrayList<>();
         for (Customer customer : customers) {
-            Map<String, Object> sellingCompanytInfo = new HashMap<>();
-            sellingCompanytInfo.put("custName", customer.getCustName());
-            sellingCompanytInfo.put("custEmail", customer.getCustEmail());
-            sellingCompanytInfo.put("custPassword", customer.getCustPassword());
-            sellingCompanytInfo.put("custState", customer.getCustState());
-            result.add(sellingCompanytInfo);
+            Map<String, Object> customerInfo = new HashMap<>();
+            customerInfo.put("custName", customer.getCustName());
+            customerInfo.put("custEmail", customer.getCustEmail());
+            customerInfo.put("custPassword", customer.getCustPassword());
+            customerInfo.put("custState", customer.getCustState());
+
+            List<Map<String, Object>> orders = new ArrayList<>();
+            for (Orders order : customer.getOrders()) {
+                Map<String, Object> orderInfo = new HashMap<>();
+                orderInfo.put("Order Id", order.getId());
+                orderInfo.put("Order Status", order.getStatus());
+                orders.add(orderInfo);
+            }
+            customerInfo.put("Orders Status", orders);
+            result.add(customerInfo);
         }
         return result;
     }
@@ -67,11 +76,21 @@ public class AdminREST {
         List<Shippingcompany> shippingcompanies = query.getResultList();
         List<Map<String, Object>> result = new ArrayList<>();
         for (Shippingcompany shippingcompany : shippingcompanies) {
-            Map<String, Object> sellingCompanytInfo = new HashMap<>();
-            sellingCompanytInfo.put("username", shippingcompany.getUsername());
-            sellingCompanytInfo.put("password", shippingcompany.getPassword());
-            result.add(sellingCompanytInfo);
+            Map<String, Object> shippingCompanyInfo = new HashMap<>();
+            shippingCompanyInfo.put("username", shippingcompany.getUsername());
+            shippingCompanyInfo.put("password", shippingcompany.getPassword());
+
+            List<Map<String, Object>> regions = new ArrayList<>();
+            for (Regions region : shippingcompany.getRegions()) {
+                Map<String, Object> productInfo = new HashMap<>();
+                productInfo.put("Region Name", region.getRegionName());
+                // add other product properties as needed
+                regions.add(productInfo);
+            }
+            shippingCompanyInfo.put("Supported Regions", regions);
+            result.add(shippingCompanyInfo);
         }
+
         return result;
     }
 

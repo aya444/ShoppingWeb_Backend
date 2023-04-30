@@ -52,17 +52,15 @@ public class SellingCompanyREST {
     }
 
     @GET
-    @Path("/sale/{username}")
-    public Response getProductsOnSale(@PathParam("username") String username) {
+    @Path("/sale/{id}")
+    public Response getProductsOnSale(@PathParam("id") int id) {
         em.getTransaction().begin();
-        Sellingcompany sellingcompany = em.createQuery("SELECT a FROM Sellingcompany a WHERE a.username = :username AND a.state= 'Logged'", Sellingcompany.class)
-                .setParameter("username", username)
-                .getSingleResult();
+        Sellingcompany sellingcompany = em.find(Sellingcompany.class,id);
 
-        if (sellingcompany != null) {
-            TypedQuery<Product> query = em.createQuery("SELECT p FROM Product p WHERE p.status = 'sale'", Product.class);
+        if (sellingcompany != null && sellingcompany.getState().equals("Logged")) {
+            TypedQuery<Product> query = em.createQuery("SELECT p FROM Product p WHERE p.status = 'sale' AND p.sellingcompany.id = :id", Product.class);
+            query.setParameter("id", id);
             List<Product> products = query.getResultList();
-            em.getTransaction().commit();
 
             List<Map<String, Object>> result = new ArrayList<>();
             for (Product product : products) {
@@ -72,7 +70,6 @@ public class SellingCompanyREST {
                 productInfo.put("price", product.getPrice());
                 result.add(productInfo);
             }
-
             return Response.ok(result).build();
         } else {
             em.getTransaction().rollback();
@@ -81,14 +78,12 @@ public class SellingCompanyREST {
     }
 
     @GET
-    @Path("/getorders/{username}")
-    public Response get(@PathParam("username") String username) {
+    @Path("/getorders/{id}")
+    public Response get(@PathParam("id") int id) {
         em.getTransaction().begin();
-        Sellingcompany sellingcompany = em.createQuery("SELECT a FROM Sellingcompany a WHERE a.username = :username AND a.state= 'Logged'", Sellingcompany.class)
-                .setParameter("username", username)
-                .getSingleResult();
+        Sellingcompany sellingcompany = em.find(Sellingcompany.class, id);
 
-        if (sellingcompany != null) {
+        if (sellingcompany != null && sellingcompany.getState().equals("Logged")) {
             TypedQuery<Orders> query = em.createQuery("SELECT a FROM Orders a", Orders.class);
             List<Orders> orders = query.getResultList();
             em.getTransaction().commit();
