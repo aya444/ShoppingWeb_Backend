@@ -79,10 +79,8 @@ public class AdminREST {
     @Path("/getallselling")
     @Transactional
     public List<Map<String, Object>> getAllSellingCompanies() {
-//        em.getTransaction().begin();
         TypedQuery<Sellingcompany> query = em.createQuery("SELECT a FROM Sellingcompany a", Sellingcompany.class);
         List<Sellingcompany> sellingcompanies = query.getResultList();
-//        em.getTransaction().commit();
 
         List<Map<String, Object>> result = new ArrayList<>();
         for (Sellingcompany sellingcompany : sellingcompanies) {
@@ -90,10 +88,46 @@ public class AdminREST {
             sellingCompanytInfo.put("username", sellingcompany.getUsername());
             sellingCompanytInfo.put("password", sellingcompany.getPassword());
             sellingCompanytInfo.put("state", sellingcompany.getState());
+
+            // Convert the set of products to a list of product maps
+            List<Map<String, Object>> products = new ArrayList<>();
+            for (Product product : sellingcompany.getProducts()) {
+                Map<String, Object> productInfo = new HashMap<>();
+                productInfo.put("name", product.getName());
+                productInfo.put("price", product.getPrice());
+                // add other product properties as needed
+                products.add(productInfo);
+            }
+
+            sellingCompanytInfo.put("products", products);
             result.add(sellingCompanytInfo);
         }
+
         return result;
     }
+
+
+
+//    @GET
+//    @Path("/getallselling")
+//    @Transactional
+//    public List<Map<String, Object>> getAllSellingCompanies() {
+////        em.getTransaction().begin();
+//        TypedQuery<Sellingcompany> query = em.createQuery("SELECT a FROM Sellingcompany a", Sellingcompany.class);
+//        List<Sellingcompany> sellingcompanies = query.getResultList();
+////        em.getTransaction().commit();
+//
+//        List<Map<String, Object>> result = new ArrayList<>();
+//        for (Sellingcompany sellingcompany : sellingcompanies) {
+//            Map<String, Object> sellingCompanytInfo = new HashMap<>();
+//            sellingCompanytInfo.put("username", sellingcompany.getUsername());
+//            sellingCompanytInfo.put("password", sellingcompany.getPassword());
+//            sellingCompanytInfo.put("state", sellingcompany.getState());
+//            sellingCompanytInfo.put("Products",sellingcompany.getProducts());
+//            result.add(sellingCompanytInfo);
+//        }
+//        return result;
+//    }
 
 
     @POST

@@ -110,13 +110,14 @@ public class SellingCompanyREST {
 
     @POST
     @Path("/add/{id}")
-    public String createProduct(@PathParam(value = "id") Long id, Product newProduct) {
+    public String createProduct(@PathParam(value = "id") int id, Product newProduct) {
         Sellingcompany sellingCompany = em.find(Sellingcompany.class, id);
         if (sellingCompany != null && sellingCompany.getState().equals("Logged")) {
             Product product = new Product();
             product.setName(newProduct.getName());
             product.setPrice(newProduct.getPrice());
             product.setStatus(newProduct.getStatus());
+            product.setSellingcompanyId(id);
             product.setSellingcompany(sellingCompany);
 
             em.getTransaction().begin();
@@ -130,6 +131,29 @@ public class SellingCompanyREST {
         }
         throw new RuntimeException("Selling Company Not Logged In!");
     }
+
+//    @POST
+//    @Path("/add/{id}")
+//    public String createProduct(@PathParam(value = "id") Long id, Product newProduct) {
+//        Sellingcompany sellingCompany = em.find(Sellingcompany.class, id);
+//        if (sellingCompany != null && sellingCompany.getState().equals("Logged")) {
+//            Product product = new Product();
+//            product.setName(newProduct.getName());
+//            product.setPrice(newProduct.getPrice());
+//            product.setStatus(newProduct.getStatus());
+//            product.setSellingcompany(sellingCompany);
+//
+//            em.getTransaction().begin();
+//            em.persist(product);
+//            em.getTransaction().commit();
+//
+//            return "Product added Successfully!";
+//        }
+//        else if(sellingCompany == null){
+//            throw new RuntimeException("Selling Company Not Registered!");
+//        }
+//        throw new RuntimeException("Selling Company Not Logged In!");
+//    }
 
 
 
