@@ -2,19 +2,20 @@ package entities;
 
 import jakarta.persistence.*;
 
-import java.io.Serializable;
-
 @Entity
-public class Admin implements Serializable {
+public class Admin{
     @Id
     @Column(name = "id", nullable = false)
     private int id;
     @Basic
-    @Column(name = "username", nullable = true, length = 1000)
+    @Column(name = "username", nullable = false, length = 1000)
     private String username;
     @Basic
-    @Column(name = "password", nullable = true, length = 1000)
+    @Column(name = "password", nullable = false, length = 1000)
     private String password;
+    @Basic
+    @Column(name = "status", nullable = false, length = 45)
+    private String status;
 
     public int getId() {
         return id;
@@ -73,5 +74,13 @@ public class Admin implements Serializable {
         result = 31 * result + (username != null ? username.hashCode() : 0);
         result = 31 * result + (password != null ? password.hashCode() : 0);
         return result;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

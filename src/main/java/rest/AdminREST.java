@@ -22,82 +22,116 @@ public class AdminREST {
     EntityManager em = entityManagerFactory.createEntityManager();
 
     @POST
-    @Path("/create-seller")
-    public String createSellers(List<String> companyNames) {
-        Admin admin = new Admin();
-        List<String> passwords = new ArrayList<>();
+    @Path("/create-seller/{id}")
+    public String createSellers(@PathParam("id") int id, List<String> companyNames) {
+        em.getTransaction().begin();
+        Admin admin = em.find(Admin.class,id);
+        if (admin != null && admin.getStatus().equals("Logged")) {
+            List<String> passwords = new ArrayList<>();
+            for (int i = 0; i < companyNames.size(); i++) {
+                String password = admin.generateRandomPassword();
+                passwords.add(password);
+                Sellingcompany seller = new Sellingcompany();
+                seller.setUsername(companyNames.get(i));
+                seller.setPassword(password);
+                seller.setState("NotLoggedIn");
+                em.persist(seller);
+                em.getTransaction().commit();
+            }
+            return "Selling Company Account Created!";
+        }
+        else if(admin == null){
+            throw new RuntimeException("Selling Company Not Registered!");
+        }
+        throw new RuntimeException("Selling Company Not Logged In!");
+    }
 
-        for (int i = 0; i < companyNames.size(); i++) {
-            em.getTransaction().begin();
-            String password = admin.generateRandomPassword();
-            passwords.add(password);
-            Sellingcompany seller = new Sellingcompany();
-            seller.setUsername(companyNames.get(i));
-            seller.setPassword(password);
-            seller.setState("NotLoggedIn");
-            em.persist(seller);
+    @POST
+    @Path("/create-shipping/{id}")
+    public String register(@PathParam("id") int id,Shippingcompany shippingcompany) {
+        em.getTransaction().begin();
+        Admin admin = em.find(Admin.class,id);
+        if (admin != null && admin.getStatus().equals("Logged")) {
+            em.persist(shippingcompany);
             em.getTransaction().commit();
+            return "Shipping Company Successfully Registered!";
         }
-        return "Done!";
+        else if(admin == null){
+            throw new RuntimeException("Selling Company Not Registered!");
+        }
+        throw new RuntimeException("Selling Company Not Logged In!");
     }
 
     @GET
-    @Path("/getallcustomers")
+    @Path("/getallcustomers/{id}")
     @Transactional
-    public List<Map<String, Object>> getAllCustomers() {
-        TypedQuery<Customer> query = em.createQuery("SELECT a FROM Customer a", Customer.class);
-        List<Customer> customers = query.getResultList();
-        List<Map<String, Object>> result = new ArrayList<>();
-        for (Customer customer : customers) {
-            Map<String, Object> customerInfo = new HashMap<>();
-            customerInfo.put("custName", customer.getCustName());
-            customerInfo.put("custEmail", customer.getCustEmail());
-            customerInfo.put("custPassword", customer.getCustPassword());
-            customerInfo.put("custState", customer.getCustState());
+    public Response getAllCustomers(@PathParam("id") int id) {
+        Admin admin = em.find(Admin.class,id);
+        if (admin != null && admin.getStatus().equals("Logged")) {
+            TypedQuery<Customer> query = em.createQuery("SELECT a FROM Customer a", Customer.class);
+            List<Customer> customers = query.getResultList();
+            List<Map<String, Object>> result = new ArrayList<>();
+            for (Customer customer : customers) {
+                Map<String, Object> customerInfo = new HashMap<>();
+                customerInfo.put("custName", customer.getCustName());
+                customerInfo.put("custEmail", customer.getCustEmail());
+                customerInfo.put("custPassword", customer.getCustPassword());
+                customerInfo.put("custState", customer.getCustState());
 
-            List<Map<String, Object>> orders = new ArrayList<>();
-            for (Orders order : customer.getOrders()) {
-                Map<String, Object> orderInfo = new HashMap<>();
-                orderInfo.put("Order Id", order.getId());
-                orderInfo.put("Order Status", order.getStatus());
-                orders.add(orderInfo);
+                List<Map<String, Object>> orders = new ArrayList<>();
+                for (Orders order : customer.getOrders()) {
+                    Map<String, Object> orderInfo = new HashMap<>();
+                    orderInfo.put("Order Id", order.getId());
+                    orderInfo.put("Order Status", order.getStatus());
+                    orders.add(orderInfo);
+                }
+                customerInfo.put("Orders Status", orders);
+                result.add(customerInfo);
             }
-            customerInfo.put("Orders Status", orders);
-            result.add(customerInfo);
+            return Response.ok(result).build();
+        }else {
+            em.getTransaction().rollback();
+            return Response.status(Response.Status.UNAUTHORIZED).entity("SellingCompany is not logged in").build();
         }
-        return result;
     }
 
     @GET
-    @Path("/getallshipping")
+    @Path("/getallshipping/{id}")
     @Transactional
-    public List<Map<String, Object>> getAllShippingCompanies() {
-        TypedQuery<Shippingcompany> query = em.createQuery("SELECT a FROM Shippingcompany a", Shippingcompany.class);
-        List<Shippingcompany> shippingcompanies = query.getResultList();
-        List<Map<String, Object>> result = new ArrayList<>();
-        for (Shippingcompany shippingcompany : shippingcompanies) {
-            Map<String, Object> shippingCompanyInfo = new HashMap<>();
-            shippingCompanyInfo.put("username", shippingcompany.getUsername());
-            shippingCompanyInfo.put("password", shippingcompany.getPassword());
+    public Response getAllShippingCompanies(@PathParam("id") int id) {
+        Admin admin = em.find(Admin.class,id);
+        if (admin != null && admin.getStatus().equals("Logged")) {
+            TypedQuery<Shippingcompany> query = em.createQuery("SELECT a FROM Shippingcompany a", Shippingcompany.class);
+            List<Shippingcompany> shippingcompanies = query.getResultList();
+            List<Map<String, Object>> result = new ArrayList<>();
+            for (Shippingcompany shippingcompany : shippingcompanies) {
+                Map<String, Object> shippingCompanyInfo = new HashMap<>();
+                shippingCompanyInfo.put("username", shippingcompany.getUsername());
+                shippingCompanyInfo.put("password", shippingcompany.getPassword());
 
-            List<Map<String, Object>> regions = new ArrayList<>();
-            for (Regions region : shippingcompany.getRegions()) {
-                Map<String, Object> productInfo = new HashMap<>();
-                productInfo.put("Region Name", region.getRegionName());
-                // add other product properties as needed
-                regions.add(productInfo);
+                List<Map<String, Object>> regions = new ArrayList<>();
+                for (Regions region : shippingcompany.getRegions()) {
+                    Map<String, Object> productInfo = new HashMap<>();
+                    productInfo.put("Region Name", region.getRegionName());
+                    // add other product properties as needed
+                    regions.add(productInfo);
+                }
+                shippingCompanyInfo.put("Supported Regions", regions);
+                result.add(shippingCompanyInfo);
             }
-            shippingCompanyInfo.put("Supported Regions", regions);
-            result.add(shippingCompanyInfo);
+            return Response.ok(result).build();
+        }else {
+            em.getTransaction().rollback();
+            return Response.status(Response.Status.UNAUTHORIZED).entity("SellingCompany is not logged in").build();
         }
-
-        return result;
     }
 
     @GET
-    @Path("/getallselling")
+    @Path("/getallselling/{id}")
     @Transactional
-    public List<Map<String, Object>> getAllSellingCompanies() {
+    public Response getAllSellingCompanies(@PathParam("id") int id) {
+        Admin admin = em.find(Admin.class,id);
+        if (admin != null && admin.getStatus().equals("Logged")) {
         TypedQuery<Sellingcompany> query = em.createQuery("SELECT a FROM Sellingcompany a", Sellingcompany.class);
         List<Sellingcompany> sellingcompanies = query.getResultList();
 
@@ -121,57 +155,40 @@ public class AdminREST {
             sellingCompanytInfo.put("products", products);
             result.add(sellingCompanytInfo);
         }
-
-        return result;
+            return Response.ok(result).build();
+        }else {
+            em.getTransaction().rollback();
+            return Response.status(Response.Status.UNAUTHORIZED).entity("SellingCompany is not logged in").build();
+        }
     }
-
-
-
-//    @GET
-//    @Path("/getallselling")
-//    @Transactional
-//    public List<Map<String, Object>> getAllSellingCompanies() {
-////        em.getTransaction().begin();
-//        TypedQuery<Sellingcompany> query = em.createQuery("SELECT a FROM Sellingcompany a", Sellingcompany.class);
-//        List<Sellingcompany> sellingcompanies = query.getResultList();
-////        em.getTransaction().commit();
-//
-//        List<Map<String, Object>> result = new ArrayList<>();
-//        for (Sellingcompany sellingcompany : sellingcompanies) {
-//            Map<String, Object> sellingCompanytInfo = new HashMap<>();
-//            sellingCompanytInfo.put("username", sellingcompany.getUsername());
-//            sellingCompanytInfo.put("password", sellingcompany.getPassword());
-//            sellingCompanytInfo.put("state", sellingcompany.getState());
-//            sellingCompanytInfo.put("Products",sellingcompany.getProducts());
-//            result.add(sellingCompanytInfo);
-//        }
-//        return result;
-//    }
-
 
     @POST
     @Path("/login")
-    @Transactional
     public Response login(Admin admin) {
+        em.getTransaction().begin();
         String username = admin.getUsername();
         String password = admin.getPassword();
-
         if (username == null || password == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Username and password are required").build();
         }
-
         try {
             Admin foundAdmin = em.createQuery("SELECT a FROM Admin a WHERE a.username = :username", Admin.class)
                     .setParameter("username", username)
                     .getSingleResult();
+
             if (foundAdmin.getPassword().equals(password)) {
+                foundAdmin.setStatus("Logged");
+                em.merge(foundAdmin);
+                em.getTransaction().commit();
                 return Response.ok("Login successful").build();
             } else {
                 return Response.status(Response.Status.UNAUTHORIZED).entity("Incorrect password").build();
             }
         } catch (NoResultException e) {
             return Response.status(Response.Status.UNAUTHORIZED).entity("Admin not found").build();
-        }
+        } finally {
+        em.close();
+    }
     }
 
     @POST
@@ -182,135 +199,4 @@ public class AdminREST {
         em.getTransaction().commit();
         return "Admin Successfully Registered!";
     }
-
-
-//    EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("default");
-//    EntityManager em = entityManagerFactory.createEntityManager();
-//
-//    @POST
-//    @Path("/register")
-//    public String register(Admin admin) {
-//        em.getTransaction().begin();
-//        em.persist(admin);
-//        em.getTransaction().commit();
-//        return "Admin Successfully Registered!";
-//    }
-//
-//    @POST
-//    @Path("/login")
-//    public Response login(Admin admin) {
-//        String username = admin.getUsername();
-//        String password = admin.getPassword();
-//
-//        if (username == null || password == null) {
-//            return Response.status(Response.Status.BAD_REQUEST).entity("Username and password are required").build();
-//        }
-//
-//        try {
-//            Admin foundAdmin = em.createQuery("SELECT a FROM Admin a WHERE a.username = :username", Admin.class)
-//                    .setParameter("username", username)
-//                    .getSingleResult();
-//            if (foundAdmin.getPassword().equals(password)) {
-//                em.getTransaction().commit();
-//                return Response.ok("Login successful").build();
-//            } else {
-//                return Response.status(Response.Status.UNAUTHORIZED).entity("Incorrect password").build();
-//            }
-//        } catch (NoResultException e) {
-//            return Response.status(Response.Status.UNAUTHORIZED).entity("Admin not found").build();
-//        } finally {
-//            em.close();
-//        }
-//    }
-//
-//    @POST
-//    @Path("/create-seller")
-//    public String createSellers(List<String> companyNames) {
-//        Admin admin = new Admin();
-//        List<String> passwords = new ArrayList<>();
-//
-//        for (int i = 0; i < companyNames.size(); i++) {
-//            em.getTransaction().begin();
-//            String password = admin.generateRandomPassword();
-//            passwords.add(password);
-//            Sellingcompany seller = new Sellingcompany();
-//            seller.setUsername(companyNames.get(i));
-//            seller.setPassword(password);
-//            em.persist(seller);
-//            em.getTransaction().commit();
-//        }
-//        return "Done!";
-//    }
-//
-//    @GET
-//    @Path("/getall")
-//    public List<Sellingcompany> getAllSellingCompanies() {
-//        em.getTransaction().begin();
-//        TypedQuery<Sellingcompany> query = em.createQuery("SELECT a FROM Sellingcompany a", Sellingcompany.class);
-//        List<Sellingcompany> sellingcompanies = query.getResultList();
-//        em.getTransaction().commit();
-//        return sellingcompanies;
-//    }
-
-//    @GET
-//    @Path("/getalltry")
-//    public Set<Product> getAll() {
-//        TypedQuery<Sellingcompany> query = em.createQuery("SELECT a FROM Sellingcompany a", Sellingcompany.class);
-//        List<Sellingcompany> sellingcompanies = query.getResultList();
-//        Set<Product> productsBig= new HashSet<>();
-//        for(int i=1;i<=sellingcompanies.size();i++){
-//
-//            for(int j=1;j<=sellingcompanies.get(i).getProducts().size();j++){
-//                Set<Product> products= sellingcompanies.get(i).getProducts();
-//                productsBig.addAll(products);
-//            }
-//        }
-//        return productsBig;
-//    }
-
-//    @GET
-//    @Path("/get/{id}")
-//    public Admin get(@PathParam("id")Integer id) {
-//        em.getTransaction().begin();
-//        Admin admin = em.find(Admin.class,id);
-//        em.getTransaction().commit();
-//        return admin;
-//    }
-//
-//    @GET
-//    @Path("/getall")
-//    public List<Admin> getAllAdmins() {
-//        em.getTransaction().begin();
-//        TypedQuery<Admin> query = em.createQuery("SELECT a FROM Admin a", Admin.class);
-//        List<Admin> admins = query.getResultList();
-//        em.getTransaction().commit();
-//        return admins;
-//    }
-//
-//    @PUT
-//    @Path("/updateByUsername/{username}")
-//    @Consumes("text/plain")
-//    public Response updateByUsername(@PathParam("username")String username, String newPassword) {
-//        em.getTransaction().begin();
-//        Admin admin = em.createQuery("SELECT a FROM Admin a WHERE a.username = :username", Admin.class)
-//                .setParameter("username", username)
-//                .getSingleResult();
-//        if (admin != null) {
-//            admin.setPassword(newPassword);
-//            em.merge(admin);
-//        }
-//        em.getTransaction().commit();
-//        String message = "Password for admin with username '" + username + "' has been updated successfully.";
-//        return Response.status(Response.Status.OK).entity(message).build();
-//    }
-//
-//    @DELETE
-//    @Path("/delete/{id}")
-//    public String register(@PathParam("id")Integer id) {
-//        em.getTransaction().begin();
-//        Admin a= em.find(Admin.class, id);
-//        em.remove(a);
-//        em.getTransaction().commit();
-//        return "Admin Successfully Deleted!";
-//    }
 }
