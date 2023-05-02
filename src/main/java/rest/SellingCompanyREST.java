@@ -1,5 +1,6 @@
 package rest;
 
+import entities.Admin;
 import entities.Orders;
 import entities.Product;
 import entities.Sellingcompany;
@@ -52,14 +53,16 @@ public class SellingCompanyREST {
     }
 
     @GET
-    @Path("/sale/{id}")
-    public Response getProductsOnSale(@PathParam("id") int id) {
+    @Path("/sale/{username}")
+    public Response getProductsOnSale(@PathParam("username") String username) {
         em.getTransaction().begin();
-        Sellingcompany sellingcompany = em.find(Sellingcompany.class, id);
+        Sellingcompany sellingcompany = em.createQuery("SELECT a FROM Sellingcompany a WHERE a.username=: username", Sellingcompany.class)
+                .setParameter("username", username)
+                .getSingleResult();
 
         if (sellingcompany != null && sellingcompany.getState().equals("Logged")) {
-            TypedQuery<Product> query = em.createQuery("SELECT p FROM Product p WHERE p.status = 'sale' AND p.sellingcompany.id = :id", Product.class);
-            query.setParameter("id", id);
+            TypedQuery<Product> query = em.createQuery("SELECT p FROM Product p WHERE p.status = 'sale' AND p.sellingcompany.username = :username", Product.class);
+            query.setParameter("username", username);
             List<Product> products = query.getResultList();
 
             List<Map<String, Object>> result = new ArrayList<>();
@@ -78,14 +81,16 @@ public class SellingCompanyREST {
     }
 
     @GET
-    @Path("/getorders/{id}")
-    public Response get(@PathParam("id") int id) {
+    @Path("/getorders/{username}")
+    public Response get(@PathParam("username") String username) {
         em.getTransaction().begin();
-        Sellingcompany sellingcompany = em.find(Sellingcompany.class, id);
+        Sellingcompany sellingcompany = em.createQuery("SELECT a FROM Sellingcompany a WHERE a.username=: username", Sellingcompany.class)
+                .setParameter("username", username)
+                .getSingleResult();
 
         if (sellingcompany != null && sellingcompany.getState().equals("Logged")) {
-            TypedQuery<Product> query1 = em.createQuery("SELECT p FROM Product p WHERE p.sellingcompanyId = :id", Product.class);
-            query1.setParameter("id", id); // set the value of the named parameter "id" to the value of the path parameter "id"
+            TypedQuery<Product> query1 = em.createQuery("SELECT p FROM Product p WHERE p.status = 'sale' AND p.sellingcompany.username = :username", Product.class);
+            query1.setParameter("username", username); // set the value of the named parameter "id" to the value of the path parameter "id"
             List<Product> products = query1.getResultList();
             TypedQuery<Orders> query = em.createQuery("SELECT o FROM Orders o", Orders.class);
             List<Orders> orders1 = query.getResultList();
@@ -118,15 +123,17 @@ public class SellingCompanyREST {
     }
 
     @POST
-    @Path("/add/{id}")
-    public String createProduct(@PathParam(value = "id") int id, Product newProduct) {
-        Sellingcompany sellingCompany = em.find(Sellingcompany.class, id);
+    @Path("/add/{username}")
+    public String createProduct(@PathParam("username") String username, Product newProduct) {
+        Sellingcompany sellingCompany = em.createQuery("SELECT a FROM Sellingcompany a WHERE a.username=: username", Sellingcompany.class)
+                .setParameter("username", username)
+                .getSingleResult();
         if (sellingCompany != null && sellingCompany.getState().equals("Logged")) {
             Product product = new Product();
             product.setName(newProduct.getName());
             product.setPrice(newProduct.getPrice());
             product.setStatus(newProduct.getStatus());
-            product.setSellingcompanyId(id);
+            product.setSellingcompanyId(sellingCompany.getId());
             product.setSellingcompany(sellingCompany);
 
             em.getTransaction().begin();

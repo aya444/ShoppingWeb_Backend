@@ -1,4 +1,4 @@
-package rest;
+package cofiguration;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
